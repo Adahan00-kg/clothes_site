@@ -60,7 +60,7 @@ class LoginSerializer(serializers.Serializer):
         return {
             'user': {
                 'username': user.username,
-                'email': user.e mail,
+                'email': user.email,
             },
             'access': str(refresh.access_token),
             'refresh': str(refresh),
