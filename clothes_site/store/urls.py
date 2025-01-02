@@ -6,10 +6,6 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    #cookie
-    path('api/login/', CustomLoginView.as_view(), name='token_obtain_pair'),
-    path('api/logout/', LogoutCookieView.as_view(), name='logout'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('', ClothesListAPIView.as_view(), name='clothes_list'),
 
@@ -21,8 +17,7 @@ urlpatterns = [
 
     path('review_add/', ReviewCreateAPIView.as_view(), name='review_add'),
 
-    path('cart_create/', Cart_addViewSet.as_view({'post':'create'}), name='cart_create'),
-
+    # path('cart_create/', Cart_addViewSet.as_view({'post':'create'}), name='cart_create'),
 
     path('cart_item/', Check_cart.as_view({'get':'list','post':'create'}), name='cart-list'),
 
@@ -30,16 +25,20 @@ urlpatterns = [
 
     path('cart_item/<int:pk>/', CartItemUpdateDeleteApiView.as_view(), name='cart_item_delete'),
 
-    path('check_cart/',CartListAPIView.as_view(),name = 'cart_check'),
+    path('cart/',CartListAPIView.as_view(),name = 'cart_check'),
 
     path('favorite/', FavoriteViewSet.as_view(), name='favorite'),
+
     path('favorite_item/', FavoriteItemViewSet.as_view(), name='favorite_item'),
 
+    path('profile/', ProfileViewSet.as_view({'get': 'list', }), name='profile'),
 
+    path('profile/<int:pk>/', UserProfileUpdateViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}),
+         name='profile_detail'),
 
     path('orders/', OrderCreate.as_view({'get':'list','post':'create'}), name='order-list-create'),
     # path('orders/<int:pk>/', OrderDetailViewSet.as_view(), name='order-detail'),
 
-
+    path('photo/',PhotoListAPIView.as_view(),name='photo')
 
 ]

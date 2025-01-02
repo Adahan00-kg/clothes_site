@@ -1,13 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from phonenumber_field.formfields import PhoneNumberField
 from multiselectfield import MultiSelectField
-from django.db import transaction
-from django.core.exceptions import ValidationError
-
+from phonenumber_field.modelfields import PhoneNumberField
 
 class UserProfile(AbstractUser):
-    phone_number = PhoneNumberField(region='KG')
+    number = PhoneNumberField(region='KG',null=True,blank=True)
     address = models.CharField(max_length=150, null=True, blank=True)
     index_pochta = models.CharField(max_length=150, null=True, blank=True, verbose_name='почтовый индекс')
 
@@ -103,7 +100,7 @@ class Review(models.Model):
 
 
 class Cart(models.Model):
-    user = models.ForeignKey('UserProfile',null=True, blank=True, on_delete=models.SET_NULL)  # Авторизованный пользователь
+    user = models.ForeignKey('UserProfile',null=True, blank=True, on_delete=models.SET_NULL,related_name='cart_user')  # Авторизованный пользователь
     session_key = models.CharField(max_length=32, null=True, blank=True)  # Для анонимного пользователя
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -131,7 +128,7 @@ class CartItem(models.Model):
 
 
 class Order(models.Model):
-    order_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    order_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE,related_name='order_user')
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     STATUS_CHOICES = (
@@ -156,6 +153,7 @@ class Order(models.Model):
     def calculate_total_price(self):
         self.total_price = sum(item.get_total_price() for item in self.cart.cart_items.all())
         self.save()
+
 #считает общую стоимость всех товаров в корзине и сохраняет её в заказы короче
 
 class Favorite(models.Model):
@@ -167,11 +165,8 @@ class Favorite(models.Model):
 
 
 class FavoriteItem(models.Model):
-    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
+    favorite = models.ForeignKey(Favorite, related_name='items', on_delete=models.CASCADE,null=True,blank=True)
     clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE, related_name='clothes_favorite')
-
+    time = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f'{self.clothes}'
-
-
-

@@ -1,4 +1,4 @@
-from .models import Clothes, Color, Textile
+from .models import Clothes, Color, Textile, Photo
 from django_filters import FilterSet
 
 
@@ -6,24 +6,15 @@ class ClothesFilter(FilterSet):
     class Meta:
         model = Clothes
         fields = {
-            'price': ['gt', 'lt'],
-            'size': ['gt', 'lt'],
             'category': ['exact'],# Категории (Платья, Хиджабы и т. д.).
-
+            'promo_category':['exact'],
+            'color':['exact'],
         }
 
 
 class ColorFilter(FilterSet):
     class Meta:
-        model = Color
+        model = Photo
         fields = {
-            'color': ['exact']
-        }
-
-
-class TextileFilter(FilterSet):
-    class Meta:
-        model = Textile
-        fields = {
-            'textile_name': ['exact']
+            'color_connect': ['exact'],
         }

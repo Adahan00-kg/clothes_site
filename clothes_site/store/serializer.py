@@ -67,10 +67,10 @@ class LoginSerializer(serializers.Serializer):
         }
 
 
-class UserProfileAllSerializer(serializers.ModelSerializer):
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['username', 'first_name', 'last_name', 'address', 'index_pochta']
+        fields = ['username', 'first_name', 'last_name', 'address', 'index_pochta','number']
 
 
 class UserProfileSimpleSerializer(serializers.ModelSerializer):
@@ -90,11 +90,21 @@ class PhotoSerializer(serializers.ModelSerializer):
         model = Photo
         fields = ['photo', 'color_connect']
 
+class PhotoSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Photo
+        fields = ['photo', 'color_connect']
 
 class ColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Color
         fields = ['id','color']
+
+class ColorDetailSerializer(serializers.ModelSerializer):
+    color_photo = PhotoSimpleSerializer(read_only=True,many=True)
+    class Meta:
+        model = Color
+        fields = ['id','color','color_photo']
 
 
 class ClothesListSerializer(serializers.ModelSerializer):
@@ -159,13 +169,6 @@ class ReviewReadSerializer(serializers.ModelSerializer):
         fields = ['author', 'text', 'stars', 'review_photo', 'created_date']
 
 
-class CartSimpleSerializer(serializers.ModelSerializer):
-
-
-    class Meta:
-        model = Cart
-        fields = ['user',]
-
 
 class CartItemSerializer(serializers.ModelSerializer):
     clothes = ClothesListSerializer(read_only=True)
@@ -207,7 +210,7 @@ class TextileSerializer(serializers.ModelSerializer):
 class ClothesDetailSerializer(serializers.ModelSerializer):
     category = CategorySimpleSerializer(many=True)
     promo_category = PromoSimpleSerializer(many=True)
-    color = ColorSerializer(read_only=True, many=True)
+    color = ColorDetailSerializer(read_only=True, many=True)
     clothes_review = ReviewReadSerializer(many=True)
     average_rating = serializers.SerializerMethodField()
     textile_clothes = TextileSerializer(read_only=True, many=True)
@@ -229,6 +232,33 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class FavoriteItemSerializer(serializers.ModelSerializer):
+    clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
     class Meta:
         model = FavoriteItem
-        fields = ['cart', 'clothes']
+        fields = ['clothes','clothes_id']
+
+class FavoriteItemCheckSerializer(serializers.ModelSerializer):
+    clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
+    class Meta:
+        model = FavoriteItem
+        fields = ['clothes','clothes_id','time']
+
+
+class FavoriteCheckSerializer(serializers.ModelSerializer):
+    items = FavoriteItemCheckSerializer(read_only=True,many=True)
+    class Meta:
+        model = Favorite
+        fields = ['favorite_user', 'created_date','items']
+
+
+class ProfileCheckSerializer(serializers.ModelSerializer):
+    cart_user = CartListSerializer(read_only=True,many=True)
+    order_user = OrderSerializer(read_only=True,many=True)
+    favorite_user = FavoriteCheckSerializer(read_only=True,many=True)
+    class Meta:
+        model = UserProfile
+        fields = ['id','username','first_name','last_name',
+                  'number','address','index_pochta',
+                  'cart_user','order_user','favorite_user']
+
+
