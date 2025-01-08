@@ -1,6 +1,3 @@
-from random import choices
-
-from rest_framework import serializers
 from .models import *
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -88,35 +85,18 @@ class PromoCategorySimpleSerializer(serializers.ModelSerializer):
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
-        fields = ['photo', 'color_connect']
-
-class PhotoSimpleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Photo
-        fields = ['photo', 'color_connect']
-
-class ColorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Color
-        fields = ['id','color']
-
-class ColorDetailSerializer(serializers.ModelSerializer):
-    color_photo = PhotoSimpleSerializer(read_only=True,many=True)
-    class Meta:
-        model = Color
-        fields = ['id','color','color_photo']
+        fields = ['photo', 'color','color']
 
 
 class ClothesListSerializer(serializers.ModelSerializer):
     promo_category = PromoCategorySimpleSerializer(many=True)
     average_rating = serializers.SerializerMethodField()
-    color = ColorSerializer(many=True)
     # created_date = serializers.DateField(format('%d%m%Y'))
     discount_price = serializers.SerializerMethodField()
     class Meta:
         model = Clothes
         fields = ['id','clothes_photo', 'promo_category', 'clothes_name',
-                  'price','discount_price', 'size', 'color',  'average_rating','created_date',]
+                  'price','discount_price', 'size', 'average_rating','created_date',]
 
     def get_average_rating(self,obj):
         return obj.get_average_rating()
@@ -173,11 +153,11 @@ class ReviewReadSerializer(serializers.ModelSerializer):
 class CartItemSerializer(serializers.ModelSerializer):
     clothes = ClothesListSerializer(read_only=True)
     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
-    color = ColorSerializer(read_only=True)
-    color_id = serializers.PrimaryKeyRelatedField(queryset=Color.objects.all(), write_only=True, source='color')
+    photo = PhotoSerializer(read_only=True)
+    photo_id = serializers.PrimaryKeyRelatedField(queryset=Photo.objects.all(), write_only=True, source='photo')
     class Meta:
         model = CartItem
-        fields = ['clothes', 'clothes_id', 'quantity','size','color','color_id']
+        fields = ['clothes', 'clothes_id', 'quantity','size','photo','photo_id']
 
 
 class CartListSerializer(serializers.ModelSerializer):
@@ -198,7 +178,7 @@ class OrderSerializer(serializers.ModelSerializer):
                   'delivery', 'address', 'payment_method']
 
     def create(self, validated_data):
-        return Order.objects.create(**validated_data)        # Создаём объект заказа
+        return Order.objects.create(**validated_data)# Создаём объект заказа
 
 
 class TextileSerializer(serializers.ModelSerializer):
@@ -210,7 +190,7 @@ class TextileSerializer(serializers.ModelSerializer):
 class ClothesDetailSerializer(serializers.ModelSerializer):
     category = CategorySimpleSerializer(many=True)
     promo_category = PromoSimpleSerializer(many=True)
-    color = ColorDetailSerializer(read_only=True, many=True)
+    clothes_img  = PhotoSerializer(read_only=True,many=True)
     clothes_review = ReviewReadSerializer(many=True)
     average_rating = serializers.SerializerMethodField()
     textile_clothes = TextileSerializer(read_only=True, many=True)
@@ -219,7 +199,7 @@ class ClothesDetailSerializer(serializers.ModelSerializer):
         model = Clothes
         fields = ['clothes_name', 'clothes_photo', 'category',
                   'promo_category', 'quantities', 'active', 'price', 'size', 'average_rating',
-                  'made_in', 'textile_clothes', 'color', 'clothes_review',]
+                  'made_in', 'textile_clothes', 'clothes_img', 'clothes_review',]
 
     def get_average_rating(self, obj):
         return obj.get_average_rating()

@@ -8,13 +8,10 @@ from rest_framework import generics, viewsets, status,permissions
 from rest_framework.filters import SearchFilter, OrderingFilter
 from urllib3 import request
 
-from .filters import ClothesFilter, ColorFilter
+from .filters import ClothesFilter
+from django.http import JsonResponse
 from .models import *
 from .serializer import *
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import *
-
 #авторизация
 from rest_framework.response import Response
 from rest_framework import status
@@ -111,78 +108,7 @@ class LogoutView(generics.GenericAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
- # cart_cartitem create
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from .models import Cart, CartItem, Clothes, Color
 
-
-# class Cart_addViewSet(viewsets.ModelViewSet):
-#     serializer_class = CartListSerializer
-#     def add_to_cart(request):
-#         clothes_id = request.POST.get('clothes_id')
-#         size = request.POST.get('size')
-#         color_id = request.POST.get('color_id')
-#         quantity = int(request.POST.get('quantity', 1))
-#
-#         # Получаем одежду и цвет
-#         clothes = get_object_or_404(Clothes, id=clothes_id)
-#         color = get_object_or_404(Color, id=color_id)
-#
-#         # Для анонимного пользователя
-#         if not request.user.is_authenticated:
-#             session_key = request.session.session_key
-#             if not session_key:
-#                 request.session.create()
-#             cart, created = Cart.objects.get_or_create(session_key=session_key, user=None)
-#         else:
-#             # Для авторизованного пользователя
-#             cart, created = Cart.objects.get_or_create(user=request.user)
-#
-#         # Добавляем товар в корзину
-#         cart_item, created = CartItem.objects.get_or_create(
-#             cart=cart,
-#             clothes=clothes,
-#             size=size,
-#             color=color
-#         )
-#         if not created:
-#             cart_item.quantity += quantity  # Увеличиваем количество, если уже есть
-#             cart_item.save()
-#
-#         return JsonResponse({'message': 'Товар добавлен в корзину'})
-
-#check cart
-class Check_cart(viewsets.ModelViewSet):
-
-    serializer_class = CartItemSerializer
-
-    def get_queryset(self):
-        return CartItem.objects.filter(cart__user=self.request.user)
-
-    def view_cart(request):
-        if not request.user.is_authenticated:
-            session_key = request.session.session_key
-            if not session_key:
-                request.session.create()
-            cart = Cart.objects.filter(session_key=session_key).first()
-        else:
-            cart = Cart.objects.filter(user=request.user).first()
-
-        if not cart:
-            return JsonResponse({'message': 'Корзина пуста'})
-
-        items = [
-            {
-                'clothes_name': item.clothes.clothes_name,
-                'size': item.size,
-                'color': item.color.color,
-                'quantity': item.quantity,
-                'total_price': item.get_total_price(),
-            }
-            for item in cart.cart_items.all()
-        ]
-        return JsonResponse({'items': items, 'total_price': cart.get_total_price()})
 
 from .models import Order
 class OrderCreate(viewsets.ModelViewSet):
@@ -302,7 +228,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileCheckSerializer
     # queryset = UserProfile.objects.all()
     def get_queryset(self):
-        return UserProfile.objects.filter(id=self.request.user.id)
+        return UserProfile.objects.filter(username=self.request.user)
 
 
 class UserProfileUpdateViewSet(viewsets.ModelViewSet):
@@ -313,4 +239,3 @@ class PhotoListAPIView(generics.ListAPIView):
     queryset = Photo.objects.all()
     serializer_class = PhotoSerializer
     filter_backends =[DjangoFilterBackend]
-    filterset_class = ColorFilter

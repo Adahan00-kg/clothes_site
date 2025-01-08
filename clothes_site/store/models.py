@@ -18,7 +18,6 @@ class CategoryClothes(models.Model):
     def __str__(self):
         return f'{self.category_name}'
 
-
 class PromoCategory(models.Model):#акция,хит продаж,тренд,колекция
     promo_category = models.CharField(max_length=32)
     time = models.DateTimeField(null=True, blank=True)
@@ -27,11 +26,6 @@ class PromoCategory(models.Model):#акция,хит продаж,тренд,к�
         return f'{self.promo_category}'
 
 
-class Color(models.Model):
-    color = models.CharField(max_length=25, unique=True)
-
-    def __str__(self):
-        return f'{self.color} '
 
 
 class Clothes(models.Model):
@@ -52,7 +46,6 @@ class Clothes(models.Model):
     active = models.BooleanField(default=True, verbose_name='в наличии')
     clothes_photo = models.FileField(upload_to='clothes_img/', null=True, blank=True)
     quantities = models.PositiveSmallIntegerField()
-    color = models.ManyToManyField(Color, related_name='clothes_color')
     created_date = models.DateField(auto_now_add=True)
     clothes_description = models.TextField(null=True,blank=True)
     clothes_discount = models.PositiveSmallIntegerField(null=True,blank=True,help_text='процент скидки')
@@ -69,9 +62,9 @@ class Clothes(models.Model):
 
 
     def get_discount_price(self):
-        if self.clothes_discount:  # Проверяем, есть ли скидка
-            discount_multiplier = (100 - self.clothes_discount) / 100  # Рассчитываем коэффициент
-            return round(self.price * discount_multiplier, 2)  # Округляем до 2 знаков
+        if self.clothes_discount:
+            discount_multiplier = (100 - self.clothes_discount) / 100
+            return round(self.price * discount_multiplier, 2)
         return self.price
 
 
@@ -80,11 +73,10 @@ class Textile(models.Model):
     textile_clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE,related_name='textile_clothes')
 
 
-
 class Photo(models.Model):
     photo = models.FileField(upload_to='clothes_color_img/')
     clothes_photo = models.ForeignKey(Clothes, on_delete=models.CASCADE, related_name='clothes_img')
-    color_connect = models.ForeignKey(Color, on_delete=models.CASCADE, related_name='color_photo')
+    color = models.CharField(max_length=55)
 
 
 class Review(models.Model):
@@ -115,7 +107,7 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items')
     clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE)
     size = models.CharField(max_length=25, choices=Clothes.SIZE_CHOICES)  # Размер
-    color = models.ForeignKey(Color, on_delete=models.CASCADE)  # Цвет
+    color = models.ForeignKey(Photo, on_delete=models.CASCADE)  # Цвет
     quantity = models.PositiveIntegerField(default=1)
 
 

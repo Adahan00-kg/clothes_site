@@ -17,10 +17,6 @@ urlpatterns = [
 
     path('review_add/', ReviewCreateAPIView.as_view(), name='review_add'),
 
-    # path('cart_create/', Cart_addViewSet.as_view({'post':'create'}), name='cart_create'),
-
-    path('cart_item/', Check_cart.as_view({'get':'list','post':'create'}), name='cart-list'),
-
     path('cart_item/create/', CartItemCreateAPIView.as_view(), name='cart_item_create'),
 
     path('cart_item/<int:pk>/', CartItemUpdateDeleteApiView.as_view(), name='cart_item_delete'),
@@ -37,7 +33,6 @@ urlpatterns = [
          name='profile_detail'),
 
     path('orders/', OrderCreate.as_view({'get':'list','post':'create'}), name='order-list-create'),
-    # path('orders/<int:pk>/', OrderDetailViewSet.as_view(), name='order-detail'),
 
     path('photo/',PhotoListAPIView.as_view(),name='photo')
 
