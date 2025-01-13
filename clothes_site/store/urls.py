@@ -27,7 +27,7 @@ urlpatterns = [
 
     path('favorite_item/', FavoriteItemViewSet.as_view(), name='favorite_item'),
 
-    path('profile/', ProfileViewSet.as_view({'get': 'list', }), name='profile'),
+    path('profile/', ProfileViewSet.as_view(), name='profile'),
 
     path('profile/<int:pk>/', UserProfileUpdateViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}),
          name='profile_detail'),

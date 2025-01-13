@@ -3,6 +3,7 @@ from django.db import models
 from multiselectfield import MultiSelectField
 from phonenumber_field.modelfields import PhoneNumberField
 
+
 class UserProfile(AbstractUser):
     number = PhoneNumberField(region='KG',null=True,blank=True)
     address = models.CharField(max_length=150, null=True, blank=True)
@@ -18,14 +19,13 @@ class CategoryClothes(models.Model):
     def __str__(self):
         return f'{self.category_name}'
 
+
 class PromoCategory(models.Model):#акция,хит продаж,тренд,колекция
     promo_category = models.CharField(max_length=32)
     time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.promo_category}'
-
-
 
 
 class Clothes(models.Model):
@@ -78,6 +78,9 @@ class Photo(models.Model):
     clothes_photo = models.ForeignKey(Clothes, on_delete=models.CASCADE, related_name='clothes_img')
     color = models.CharField(max_length=55)
 
+    def __str__(self):
+        return f'{self.color} - {self.clothes_photo}'
+
 
 class Review(models.Model):
     author = models.ForeignKey(UserProfile, related_name='user_review', on_delete=models.CASCADE)
@@ -92,7 +95,7 @@ class Review(models.Model):
 
 
 class Cart(models.Model):
-    user = models.ForeignKey('UserProfile',null=True, blank=True, on_delete=models.SET_NULL,related_name='cart_user')  # Авторизованный пользователь
+    user = models.ForeignKey(UserProfile,null=True, blank=True, on_delete=models.SET_NULL,related_name='cart_user')  # Авторизованный пользователь
     session_key = models.CharField(max_length=32, null=True, blank=True)  # Для анонимного пользователя
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -104,7 +107,7 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items')
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items',null=True,blank=True)
     clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE)
     size = models.CharField(max_length=25, choices=Clothes.SIZE_CHOICES)  # Размер
     color = models.ForeignKey(Photo, on_delete=models.CASCADE)  # Цвет
@@ -115,8 +118,11 @@ class CartItem(models.Model):
         return f'{self.clothes} - {self.quantity}'
 
     def get_total_price(self):
+        if self.clothes.clothes_discount is not None:
+            discount_multiplier = (100 - self.clothes.clothes_discount) / 100
+            total_price = round(self.clothes.price * discount_multiplier, 2)
+            return total_price * self.quantity
         return self.clothes.price * self.quantity
-
 
 
 class Order(models.Model):

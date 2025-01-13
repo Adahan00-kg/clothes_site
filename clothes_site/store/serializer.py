@@ -150,14 +150,25 @@ class ReviewReadSerializer(serializers.ModelSerializer):
 
 
 
+# class CartItemSerializer(serializers.ModelSerializer):
+#
+#     clothes = ClothesListSerializer(read_only=True)
+#     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
+#     photo = PhotoSerializer(read_only=True)
+#     photo_id = serializers.PrimaryKeyRelatedField(queryset=Photo.objects.all(), write_only=True, source='photo')
+#     class Meta:
+#         model = CartItem
+#         fields = ['clothes', 'clothes_id', 'quantity','size','photo','photo_id']
+
 class CartItemSerializer(serializers.ModelSerializer):
     clothes = ClothesListSerializer(read_only=True)
     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
-    photo = PhotoSerializer(read_only=True)
-    photo_id = serializers.PrimaryKeyRelatedField(queryset=Photo.objects.all(), write_only=True, source='photo')
+    color = PhotoSerializer(read_only=True)
+    color_id = serializers.PrimaryKeyRelatedField(queryset=Photo.objects.all(), write_only=True, source='color')
+
     class Meta:
         model = CartItem
-        fields = ['clothes', 'clothes_id', 'quantity','size','photo','photo_id']
+        fields = ['clothes', 'clothes_id', 'quantity', 'size', 'color', 'color_id']
 
 
 class CartListSerializer(serializers.ModelSerializer):
@@ -194,15 +205,19 @@ class ClothesDetailSerializer(serializers.ModelSerializer):
     clothes_review = ReviewReadSerializer(many=True)
     average_rating = serializers.SerializerMethodField()
     textile_clothes = TextileSerializer(read_only=True, many=True)
-
+    discount_price = serializers.SerializerMethodField()
     class Meta:
         model = Clothes
         fields = ['clothes_name', 'clothes_photo', 'category',
-                  'promo_category', 'quantities', 'active', 'price', 'size', 'average_rating',
-                  'made_in', 'textile_clothes', 'clothes_img', 'clothes_review',]
+                  'promo_category', 'quantities', 'active', 'price','discount_price', 'size', 'average_rating',
+                  'made_in', 'textile_clothes', 'clothes_img', 'clothes_review','clothes_description']
+
 
     def get_average_rating(self, obj):
         return obj.get_average_rating()
+
+    def get_discount_price(self,obj):
+        return obj.get_discount_price()
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -232,13 +247,9 @@ class FavoriteCheckSerializer(serializers.ModelSerializer):
 
 
 class ProfileCheckSerializer(serializers.ModelSerializer):
-    cart_user = CartListSerializer(read_only=True,many=True)
-    order_user = OrderSerializer(read_only=True,many=True)
-    favorite_user = FavoriteCheckSerializer(read_only=True,many=True)
     class Meta:
         model = UserProfile
         fields = ['id','username','first_name','last_name',
-                  'number','address','index_pochta',
-                  'cart_user','order_user','favorite_user']
+                  'number','address','index_pochta',]
 
 

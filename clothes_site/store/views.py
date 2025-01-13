@@ -170,15 +170,14 @@ class CartListAPIView(generics.ListAPIView):
     serializer_class = CartListSerializer
 
     def get_queryset(self):
-        return Cart.objects.filter(user_id=self.request.user)
+        return Cart.objects.filter(user=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
         cart, created = Cart.objects.get_or_create(user=request.user)
         serializer = self.get_serializer(cart)
         return Response(serializer.data)
 
-
-class CartItemCreateAPIView(generics.CreateAPIView):#?
+class CartItemCreateAPIView(generics.CreateAPIView):
     serializer_class = CartItemSerializer
 
     def get_queryset(self):
@@ -212,7 +211,7 @@ class FavoriteViewSet(generics.ListAPIView):
         return Favorite.objects.filter(favorite_user=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
-        favorite, created = Favorite.objects.get_or_create(user=request.user)
+        favorite, created = Favorite.objects.get_or_create(favorite_user=request.user)
         serializer = self.get_serializer(favorite)
         return Response(serializer.data)
 
@@ -221,14 +220,14 @@ class FavoriteItemViewSet(generics.ListCreateAPIView):
     serializer_class = FavoriteItemSerializer
 
     def perform_create(self, serializer):
-        favorite_item, created = FavoriteItem.objects.get_or_create(user=self.request.user)
+        favorite_item, created = FavoriteItem.objects.get_or_create(favorite__favorite_user=self.request.user)
         serializer.save(favorite=favorite_item)
 
-class ProfileViewSet(viewsets.ModelViewSet):
+class ProfileViewSet(generics.ListAPIView):
     serializer_class = ProfileCheckSerializer
     # queryset = UserProfile.objects.all()
     def get_queryset(self):
-        return UserProfile.objects.filter(username=self.request.user)
+        return UserProfile.objects.filter(id=self.request.user.id)
 
 
 class UserProfileUpdateViewSet(viewsets.ModelViewSet):
@@ -239,3 +238,5 @@ class PhotoListAPIView(generics.ListAPIView):
     queryset = Photo.objects.all()
     serializer_class = PhotoSerializer
     filter_backends =[DjangoFilterBackend]
+
+
