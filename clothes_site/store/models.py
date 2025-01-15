@@ -9,6 +9,7 @@ class UserProfile(AbstractUser):
     address = models.CharField(max_length=150, null=True, blank=True)
     index_pochta = models.CharField(max_length=150, null=True, blank=True, verbose_name='почтовый индекс')
 
+
     def __str__(self):
         return f'{self.username} - {self.email}'
 
@@ -44,7 +45,6 @@ class Clothes(models.Model):
     price = models.PositiveIntegerField(default=0)
     made_in = models.CharField(max_length=32)
     active = models.BooleanField(default=True, verbose_name='в наличии')
-    clothes_photo = models.FileField(upload_to='clothes_img/', null=True, blank=True)
     quantities = models.PositiveSmallIntegerField()
     created_date = models.DateField(auto_now_add=True)
     clothes_description = models.TextField(null=True,blank=True)

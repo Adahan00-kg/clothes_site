@@ -10,7 +10,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
     class Meta:
         model = UserProfile
-        fields = ['username', 'password', 'confirm_password']
+        fields = ['username', 'email','password', 'confirm_password']
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
@@ -93,10 +93,11 @@ class ClothesListSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     # created_date = serializers.DateField(format('%d%m%Y'))
     discount_price = serializers.SerializerMethodField()
+    clothes_img = PhotoSerializer(read_only=True, many=True)
     class Meta:
         model = Clothes
-        fields = ['id','clothes_photo', 'promo_category', 'clothes_name',
-                  'price','discount_price', 'size', 'average_rating','created_date',]
+        fields = ['id', 'promo_category', 'clothes_name',
+                  'price','discount_price', 'size', 'average_rating','created_date','clothes_img']
 
     def get_average_rating(self,obj):
         return obj.get_average_rating()
@@ -150,16 +151,6 @@ class ReviewReadSerializer(serializers.ModelSerializer):
 
 
 
-# class CartItemSerializer(serializers.ModelSerializer):
-#
-#     clothes = ClothesListSerializer(read_only=True)
-#     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
-#     photo = PhotoSerializer(read_only=True)
-#     photo_id = serializers.PrimaryKeyRelatedField(queryset=Photo.objects.all(), write_only=True, source='photo')
-#     class Meta:
-#         model = CartItem
-#         fields = ['clothes', 'clothes_id', 'quantity','size','photo','photo_id']
-
 class CartItemSerializer(serializers.ModelSerializer):
     clothes = ClothesListSerializer(read_only=True)
     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
@@ -208,7 +199,7 @@ class ClothesDetailSerializer(serializers.ModelSerializer):
     discount_price = serializers.SerializerMethodField()
     class Meta:
         model = Clothes
-        fields = ['clothes_name', 'clothes_photo', 'category',
+        fields = ['clothes_name', 'category',
                   'promo_category', 'quantities', 'active', 'price','discount_price', 'size', 'average_rating',
                   'made_in', 'textile_clothes', 'clothes_img', 'clothes_review','clothes_description']
 

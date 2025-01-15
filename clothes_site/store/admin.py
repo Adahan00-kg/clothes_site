@@ -38,4 +38,5 @@ admin.site.register(CartItem)
 admin.site.register(Order)
 admin.site.register(Favorite)
 admin.site.register(FavoriteItem)
+
 #color

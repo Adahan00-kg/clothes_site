@@ -225,13 +225,15 @@ class FavoriteItemViewSet(generics.ListCreateAPIView):
 
 class ProfileViewSet(generics.ListAPIView):
     serializer_class = ProfileCheckSerializer
-    # queryset = UserProfile.objects.all()
+
+
     def get_queryset(self):
         return UserProfile.objects.filter(id=self.request.user.id)
 
 
 class UserProfileUpdateViewSet(viewsets.ModelViewSet):
     serializer_class = UserProfileUpdateSerializer
+    queryset = UserProfile.objects.all()
 
 
 class PhotoListAPIView(generics.ListAPIView):
