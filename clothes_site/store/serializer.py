@@ -4,6 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
+# from django_rest_passwordreset.models import ResetPasswordToken
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -39,6 +40,36 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'access': str(refresh.access_token),
             'refresh': str(refresh),
         }
+
+
+
+
+# class VerifyResetCodeSerializer(serializers.Serializer):
+#     email = serializers.EmailField()  # Email пользователя
+#     reset_code = serializers.IntegerField()  # 4-значный код
+#     new_password = serializers.CharField(write_only=True)  # Новый пароль
+#
+#     def validate(self, data):
+#         email = data.get('email')
+#         reset_code = data.get('reset_code')
+#
+#         # Проверяем, существует ли указанный код для email
+#         try:
+#             token = ResetPasswordToken.objects.get(user__email=email, key=reset_code)
+#         except ResetPasswordToken.DoesNotExist:
+#             raise serializers.ValidationError("Неверный код сброса или email.")
+#
+#         data['user'] = token.user
+#         return data
+#
+#     def save(self):
+#         user = self.validated_data['user']
+#         new_password = self.validated_data['new_password']
+#
+#         # Устанавливаем новый пароль
+#         user.set_password(new_password)
+#         user.save()
+#
 
 
 class LoginSerializer(serializers.Serializer):
@@ -161,16 +192,24 @@ class CartItemSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = ['clothes', 'clothes_id', 'quantity', 'size', 'color', 'color_id']
 
+class CartItemCheckSerializer(serializers.ModelSerializer):
+    clothes = ClothesListSerializer()
+    class Meta:
+        model = CartItem
+        fields = ['id','clothes','size','color','quantity']
+
 
 class CartListSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
-
+    cart_items = CartItemCheckSerializer(many=True,read_only=True)
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'total_price']
+        fields = ['id', 'user', 'total_price','cart_items']
 
     def get_total_price(self, obj):
         return obj.get_total_price()
+
+
 
 
 class OrderSerializer(serializers.ModelSerializer):

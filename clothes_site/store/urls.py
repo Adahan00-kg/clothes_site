@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,include
 from .views import *
 
 urlpatterns = [
@@ -21,6 +21,8 @@ urlpatterns = [
 
     path('cart_item/<int:pk>/', CartItemUpdateDeleteApiView.as_view(), name='cart_item_delete'),
 
+    path('cart_item/check/',CartItemListAPIView.as_view(),name = 'cart_item'),
+
     path('cart/',CartListAPIView.as_view(),name = 'cart_check'),
 
     path('favorite/', FavoriteViewSet.as_view(), name='favorite'),
@@ -34,6 +36,12 @@ urlpatterns = [
 
     path('orders/', OrderCreate.as_view({'get':'list','post':'create'}), name='order-list-create'),
 
-    path('photo/',PhotoListAPIView.as_view(),name='photo')
+    path('photo/',PhotoListAPIView.as_view(),name='photo'),
+
+
+    # path('password_reset/verify_code/', verify_reset_code, name='verify_reset_code'),
+    # path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+
+
 
 ]

@@ -21,6 +21,19 @@ from rest_framework import generics
 from django.contrib.auth import authenticate
 
 
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from rest_framework import status
+#
+# @api_view(['POST'])
+# def verify_reset_code(request):
+#     serializer = VerifyResetCodeSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response({'message': 'Пароль успешно сброшен.'}, status=status.HTTP_200_OK)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 # Регистрация
 class RegisterView(generics.CreateAPIView):
     serializer_class = UserProfileSerializer
@@ -166,11 +179,11 @@ class ReviewCreateAPIView(generics.CreateAPIView):
 
 
 class CartListAPIView(generics.ListAPIView):
-
+    queryset = Cart.objects.all()
     serializer_class = CartListSerializer
 
-    def get_queryset(self):
-        return Cart.objects.filter(user=self.request.user)
+    # def get_queryset(self):
+    #     return Cart.objects.filter(user=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
         cart, created = Cart.objects.get_or_create(user=request.user)
@@ -195,6 +208,12 @@ class CartItemUpdateDeleteApiView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return CartItem.objects.filter(cart__user=self.request.user)
 
+class CartItemListAPIView(generics.ListAPIView):
+    serializer_class = CartItemCheckSerializer
+    queryset = CartItem.objects.all()
+
+    # def get_queryset(self):
+    #     return CartItem.objects.filter(cart__user=self.request.user)
 
 class ClothesDetailViewSet(generics.RetrieveAPIView):
     queryset = Clothes.objects.all()
