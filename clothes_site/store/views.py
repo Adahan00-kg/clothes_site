@@ -192,10 +192,10 @@ class CartListAPIView(generics.ListAPIView):
 
 class CartItemCreateAPIView(generics.CreateAPIView):
     serializer_class = CartItemSerializer
-
-    def get_queryset(self):
-        return CartItem.objects.filter(cart__user=self.request.user)
-
+    # queryset = CartItem.objects.all()
+    # def get_queryset(self):
+    #     return CartItem.objects.filter(cart__user=self.request.user)
+    #
     def perform_create(self, serializer):
         cart, created = Cart.objects.get_or_create(user=self.request.user)
         serializer.save(cart=cart)
@@ -207,6 +207,7 @@ class CartItemUpdateDeleteApiView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return CartItem.objects.filter(cart__user=self.request.user)
+
 
 class CartItemListAPIView(generics.ListAPIView):
     serializer_class = CartItemCheckSerializer
@@ -244,7 +245,7 @@ class FavoriteItemViewSet(generics.ListCreateAPIView):
 
 class ProfileViewSet(generics.ListAPIView):
     serializer_class = ProfileCheckSerializer
-
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return UserProfile.objects.filter(id=self.request.user.id)

@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from multiselectfield import MultiSelectField
 from phonenumber_field.modelfields import PhoneNumberField
-
+from django.core.validators import MaxValueValidator
 
 class UserProfile(AbstractUser):
     number = PhoneNumberField(region='KG',null=True,blank=True)
@@ -104,6 +104,7 @@ class Cart(models.Model):
 
     def get_total_price(self):
         return sum(item.get_total_price() for item in self.cart_items.all())
+
 
 
 class CartItem(models.Model):

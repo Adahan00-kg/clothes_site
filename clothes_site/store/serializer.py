@@ -116,7 +116,7 @@ class PromoCategorySimpleSerializer(serializers.ModelSerializer):
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
-        fields = ['photo', 'color',]
+        fields = ['id', 'photo', 'color']
 
 
 class ClothesListSerializer(serializers.ModelSerializer):
@@ -184,26 +184,28 @@ class ClothesForCartSerializer(serializers.ModelSerializer):
     clothes_img = PhotoSerializer(read_only=True, many=True)
     class Meta:
         model  = Clothes
-        fields= ['clothes_name','clothes_img','size',]
+        fields= ['clothes_name','clothes_img']
+
 
 class CartItemSerializer(serializers.ModelSerializer):
-    clothes = ClothesListSerializer(read_only=True)
+    clothes = ClothesForCartSerializer(read_only=True)
     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
     color = PhotoSerializer(read_only=True)
     color_id = serializers.PrimaryKeyRelatedField(queryset=Photo.objects.all(), write_only=True, source='color')
-
     class Meta:
         model = CartItem
-        fields = ['clothes', 'clothes_id', 'quantity', 'size', 'color', 'color_id']
+        fields = ['id','clothes', 'clothes_id', 'quantity', 'size', 'color','color_id']
 
 
 class CartItemCheckSerializer(serializers.ModelSerializer):
     clothes = ClothesForCartSerializer(read_only=True)
     price_clothes = serializers.SerializerMethodField()
     total_price = serializers.SerializerMethodField()
+    clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
+    color_id = serializers.PrimaryKeyRelatedField(queryset=Photo.objects.all(), write_only=True, source='color')
     class Meta:
         model = CartItem
-        fields = ['id','clothes','size','color','quantity','price_clothes','total_price']
+        fields = ['id','clothes','size','color','quantity','price_clothes','total_price','color_id','clothes_id']
 
     def get_price_clothes(self,obj):
         return obj.get_price_clothes()
@@ -251,7 +253,7 @@ class ClothesDetailSerializer(serializers.ModelSerializer):
     discount_price = serializers.SerializerMethodField()
     class Meta:
         model = Clothes
-        fields = ['clothes_name', 'category',
+        fields = ['id','clothes_name', 'category',
                   'promo_category', 'quantities', 'active', 'price','discount_price', 'size', 'average_rating',
                   'made_in', 'textile_clothes', 'clothes_img', 'clothes_review','clothes_description']
 
