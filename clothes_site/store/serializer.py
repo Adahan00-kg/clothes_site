@@ -116,7 +116,7 @@ class PromoCategorySimpleSerializer(serializers.ModelSerializer):
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
-        fields = ['photo', 'color','color']
+        fields = ['photo', 'color',]
 
 
 class ClothesListSerializer(serializers.ModelSerializer):
@@ -180,7 +180,11 @@ class ReviewReadSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['author', 'text', 'stars', 'review_photo', 'created_date']
 
-
+class ClothesForCartSerializer(serializers.ModelSerializer):
+    clothes_img = PhotoSerializer(read_only=True, many=True)
+    class Meta:
+        model  = Clothes
+        fields= ['clothes_name','clothes_img','size',]
 
 class CartItemSerializer(serializers.ModelSerializer):
     clothes = ClothesListSerializer(read_only=True)
@@ -192,11 +196,20 @@ class CartItemSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = ['clothes', 'clothes_id', 'quantity', 'size', 'color', 'color_id']
 
+
 class CartItemCheckSerializer(serializers.ModelSerializer):
-    clothes = ClothesListSerializer()
+    clothes = ClothesForCartSerializer(read_only=True)
+    price_clothes = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
     class Meta:
         model = CartItem
-        fields = ['id','clothes','size','color','quantity']
+        fields = ['id','clothes','size','color','quantity','price_clothes','total_price']
+
+    def get_price_clothes(self,obj):
+        return obj.get_price_clothes()
+
+    def get_total_price(self,obj):
+        return obj.get_total_price()
 
 
 class CartListSerializer(serializers.ModelSerializer):

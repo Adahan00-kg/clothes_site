@@ -113,7 +113,6 @@ class CartItem(models.Model):
     color = models.ForeignKey(Photo, on_delete=models.CASCADE)  # Цвет
     quantity = models.PositiveIntegerField(default=1)
 
-
     def __str__(self):
         return f'{self.clothes} - {self.quantity}'
 
@@ -124,6 +123,8 @@ class CartItem(models.Model):
             return total_price * self.quantity
         return self.clothes.price * self.quantity
 
+    def get_price_clothes(self):
+        return self.clothes.price
 
 class Order(models.Model):
     order_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE,related_name='order_user')

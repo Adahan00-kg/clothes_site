@@ -210,10 +210,10 @@ class CartItemUpdateDeleteApiView(generics.RetrieveUpdateDestroyAPIView):
 
 class CartItemListAPIView(generics.ListAPIView):
     serializer_class = CartItemCheckSerializer
-    queryset = CartItem.objects.all()
+    # queryset = CartItem.objects.all()
 
-    # def get_queryset(self):
-    #     return CartItem.objects.filter(cart__user=self.request.user)
+    def get_queryset(self):
+        return CartItem.objects.filter(cart__user=self.request.user)
 
 class ClothesDetailViewSet(generics.RetrieveAPIView):
     queryset = Clothes.objects.all()
