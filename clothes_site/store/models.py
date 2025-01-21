@@ -156,17 +156,12 @@ class Order(models.Model):
 
 #считает общую стоимость всех товаров в корзине и сохраняет её в заказы короче
 
-class Favorite(models.Model):
-    favorite_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='favorite_user')
-    created_date = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return f'{self.favorite_user}'
 
 
 class FavoriteItem(models.Model):
-    favorite = models.ForeignKey(Favorite, related_name='items', on_delete=models.CASCADE,null=True,blank=True)
+    favorite_user = models.ForeignKey(UserProfile,on_delete=models.CASCADE,related_name='favorite')
     clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE, related_name='clothes_favorite')
     time = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
-        return f'{self.clothes}'
+        return f'{self.favorite_user} - {self.clothes}'

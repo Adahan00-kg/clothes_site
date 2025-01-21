@@ -25,9 +25,12 @@ urlpatterns = [
 
     path('cart/',CartListAPIView.as_view(),name = 'cart_check'),
 
-    path('favorite/', FavoriteViewSet.as_view(), name='favorite'),
 
-    path('favorite_item/', FavoriteItemViewSet.as_view(), name='favorite_item'),
+    path('favorite_item/create/', FavoriteItemCreateViewSet.as_view(), name='favorite_item_create'),
+
+    path('favorite_item/delete/<int:pk>/', FavoriteDeleteAPIView.as_view(), name='favorite_item_delete'),
+
+    path('favorite_item/list/', FavoriteListAPIView.as_view(), name='favorite_item_list'),
 
     path('profile/', ProfileViewSet.as_view(), name='profile'),
 

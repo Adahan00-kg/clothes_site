@@ -221,27 +221,19 @@ class ClothesDetailViewSet(generics.RetrieveAPIView):
     serializer_class = ClothesDetailSerializer
 
 
-class FavoriteViewSet(generics.ListAPIView):
-    serializer_class = FavoriteCheckSerializer
-    filter_backends = [OrderingFilter]
-    ordering_fields = ['time']
+
+class FavoriteItemCreateViewSet(generics.CreateAPIView):
+    serializer_class = FavoriteItemCreateSerializer
 
 
-    def get_queryset(self):
-        return Favorite.objects.filter(favorite_user=self.request.user)
+class FavoriteDeleteAPIView(generics.DestroyAPIView):
+    queryset = FavoriteItem.objects.all()
+    serializer_class = FavoriteItemALLCheckSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        favorite, created = Favorite.objects.get_or_create(favorite_user=request.user)
-        serializer = self.get_serializer(favorite)
-        return Response(serializer.data)
+class FavoriteListAPIView(generics.ListAPIView):
+    queryset = FavoriteItem.objects.all()
+    serializer_class = FavoriteItemALLCheckSerializer
 
-
-class FavoriteItemViewSet(generics.ListCreateAPIView):
-    serializer_class = FavoriteItemSerializer
-
-    def perform_create(self, serializer):
-        favorite_item, created = FavoriteItem.objects.get_or_create(favorite__favorite_user=self.request.user)
-        serializer.save(favorite=favorite_item)
 
 class ProfileViewSet(generics.ListAPIView):
     serializer_class = ProfileCheckSerializer

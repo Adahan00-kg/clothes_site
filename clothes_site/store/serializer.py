@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-# from django_rest_passwordreset.models import ResetPasswordToken
+# from django_rest_passwordreset.models import ResetPasswordTokend
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -233,8 +233,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ['order_user', 'cart', 'date',
                   'delivery', 'address', 'payment_method']
 
-    def create(self, validated_data):
-        return Order.objects.create(**validated_data)# Создаём объект заказа
+
 
 
 class TextileSerializer(serializers.ModelSerializer):
@@ -265,30 +264,50 @@ class ClothesDetailSerializer(serializers.ModelSerializer):
         return obj.get_discount_price()
 
 
-class FavoriteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Favorite
-        fields = ['favorite_user', 'created_date']
 
+# class FavoriteItemCreateSerializer(serializers.ModelSerializer):
+#     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
+#     clothes = ClothesListSerializer()
+#     class Meta:
+#         model = FavoriteItem
+#         fields = ['clothes','clothes_id']
 
-class FavoriteItemSerializer(serializers.ModelSerializer):
+class FavoriteItemCreateSerializer(serializers.ModelSerializer):
     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
+    clothes = ClothesListSerializer(read_only=True)
+
     class Meta:
         model = FavoriteItem
-        fields = ['clothes','clothes_id']
+        fields = ['id', 'clothes', 'clothes_id','favorite_user']
 
-class FavoriteItemCheckSerializer(serializers.ModelSerializer):
-    clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
+class FavoriteItemALLCheckSerializer(serializers.ModelSerializer):
+    clothes = ClothesListSerializer()
+    time = serializers.DateTimeField(format('%d - %m %Y  %H:%M'))
     class Meta:
         model = FavoriteItem
-        fields = ['clothes','clothes_id','time']
+        fields= ['id','clothes','time']
 
 
-class FavoriteCheckSerializer(serializers.ModelSerializer):
-    items = FavoriteItemCheckSerializer(read_only=True,many=True)
-    class Meta:
-        model = Favorite
-        fields = ['favorite_user', 'created_date','items']
+# class FavoriteSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Favorite
+#         fields = ['favorite_user', 'created_date']
+#
+#
+# class FavoriteItemSerializer(serializers.ModelSerializer):
+#     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
+#     class Meta:
+#         model = FavoriteItem
+#         fields = ['clothes','clothes_id']
+#
+# class FavoriteItemCheckSerializer(serializers.ModelSerializer):
+#     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
+#     class Meta:
+#         model = FavoriteItem
+#         fields = ['clothes','clothes_id','time']
+
+
+
 
 
 class ProfileCheckSerializer(serializers.ModelSerializer):
