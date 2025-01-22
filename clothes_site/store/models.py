@@ -5,10 +5,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import MaxValueValidator
 
 class UserProfile(AbstractUser):
-    number = PhoneNumberField(region='KG',null=True,blank=True)
-    address = models.CharField(max_length=150, null=True, blank=True)
-    index_pochta = models.CharField(max_length=150, null=True, blank=True, verbose_name='почтовый индекс')
-
+    number = PhoneNumberField(region='KG')
+    address = models.CharField(max_length=150)
+    city = models.CharField(max_length=50)
 
     def __str__(self):
         return f'{self.username} - {self.email}'
@@ -127,15 +126,35 @@ class CartItem(models.Model):
     def get_price_clothes(self):
         return self.clothes.price
 
+    def get_just_price(self):
+        if self.clothes.clothes_discount is not None:
+            discount_multiplier = (100 - self.clothes.clothes_discount) / 100
+            return self.clothes.price * discount_multiplier
+        else:
+            return None
+
+class OrderInfoUser(models.Model):
+    first_name = models.CharField(max_length=130)
+    phone_number = PhoneNumberField(region='KG')
+    city = models.CharField(max_length=50)
+    address = models.CharField(max_length=55)
+
+
+    def __str__(self):
+        return f'{self.first_name} - {self.phone_number}'
+
+
 class Order(models.Model):
     order_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE,related_name='order_user')
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     STATUS_CHOICES = (
         ('обработка', 'Oбработка'),
+        ('заказ собирается','заказ собирается'),
         ('в процессе доставки', 'в процессе доставки'),
         ('доставлен', 'Доставлен'),
         ('отменен', 'Отменен'),
+
     )
     order_status = models.CharField(max_length=32, choices=STATUS_CHOICES, default='Oбработка')
     STATUS_DELIVERY = (
@@ -143,16 +162,13 @@ class Order(models.Model):
         ('самовызов', 'самовызов'),
     )
     delivery = models.CharField(max_length=20, default='самовызов', choices=STATUS_DELIVERY)
-    address = models.CharField(max_length=100)
-    payment_method = models.CharField(max_length=20, default='Онлайн')#способ оплаты типа
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)#сумма заказа
+    order_info = models.ForeignKey(OrderInfoUser,on_delete=models.CASCADE)
+
 
     def __str__(self):
         return f'{self.order_user}'
 
-    def calculate_total_price(self):
-        self.total_price = sum(item.get_total_price() for item in self.cart.cart_items.all())
-        self.save()
+
 
 #считает общую стоимость всех товаров в корзине и сохраняет её в заказы короче
 
@@ -162,6 +178,28 @@ class FavoriteItem(models.Model):
     favorite_user = models.ForeignKey(UserProfile,on_delete=models.CASCADE,related_name='favorite')
     clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE, related_name='clothes_favorite')
     time = models.DateTimeField(auto_now_add=True)
+    like = models.BooleanField(default=False)
+
 
     def __str__(self):
         return f'{self.favorite_user} - {self.clothes}'
+
+
+
+class MainAbout_Me(models.Model):
+    title = models.CharField(max_length=150)
+    made = models.CharField(max_length=150)
+    logo = models.ImageField(upload_to='about_me/')
+
+    def __str__(self):
+        return f'{self.title}'
+
+
+class About_me(models.Model):
+    title = models.CharField(max_length=100)
+    text = models.TextField(null=True,blank=True)
+    img = models.ImageField(upload_to='img_about_me')
+    connect = models.ForeignKey(MainAbout_Me,on_delete=models.CASCADE,related_name='about_me')
+
+    def __str__(self):
+        return f'{self.title}'

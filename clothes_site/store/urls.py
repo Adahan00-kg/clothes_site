@@ -37,14 +37,20 @@ urlpatterns = [
     path('profile/<int:pk>/', UserProfileUpdateViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}),
          name='profile_detail'),
 
-    path('orders/', OrderCreate.as_view({'get':'list','post':'create'}), name='order-list-create'),
+    path('order/create/', OrderCreateAPIView.as_view(), name='order-list-create'),
+
+    path('user/order/create/',UserForOrderCreateAPIView.as_view(),name = 'user_for_order'),
+
+    path('order/check/',OrderCheckAPIView.as_view(),name = 'order_check'),
+
+    path('order/detail/<int:pk>/',OrderDeleteAPIView.as_view(),name = 'order_detail'),
 
     path('photo/',PhotoListAPIView.as_view(),name='photo'),
 
+    path('about_me/',MainAbout_meListAPIView.as_view(),name = 'about_me_list'),
 
     # path('password_reset/verify_code/', verify_reset_code, name='verify_reset_code'),
     # path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
-
 
 
 ]

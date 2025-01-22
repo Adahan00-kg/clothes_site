@@ -1,3 +1,5 @@
+from pyasn1_modules.rfc4985 import srvName
+
 from .models import *
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -98,7 +100,7 @@ class LoginSerializer(serializers.Serializer):
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['username', 'first_name', 'last_name', 'address', 'index_pochta','number']
+        fields = ['first_name', 'address', 'number','city']
 
 
 class UserProfileSimpleSerializer(serializers.ModelSerializer):
@@ -203,15 +205,20 @@ class CartItemCheckSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
     color_id = serializers.PrimaryKeyRelatedField(queryset=Photo.objects.all(), write_only=True, source='color')
+    just_price = serializers.SerializerMethodField()
     class Meta:
         model = CartItem
-        fields = ['id','clothes','size','color','quantity','price_clothes','total_price','color_id','clothes_id']
+        fields = ['id','clothes','size','color','quantity',
+                  'price_clothes','total_price','color_id','clothes_id','just_price']
 
     def get_price_clothes(self,obj):
         return obj.get_price_clothes()
 
     def get_total_price(self,obj):
         return obj.get_total_price()
+
+    def get_just_price(self,obj):
+        return obj.get_just_price()
 
 
 class CartListSerializer(serializers.ModelSerializer):
@@ -225,16 +232,28 @@ class CartListSerializer(serializers.ModelSerializer):
         return obj.get_total_price()
 
 
+class UserForOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderInfoUser
+        fields = ['first_name','phone_number','city','address']
 
 
-class OrderSerializer(serializers.ModelSerializer):
+class OrderCreateSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Order
-        fields = ['order_user', 'cart', 'date',
-                  'delivery', 'address', 'payment_method']
+        fields = ['order_user', 'cart',
+                  'delivery', 'order_info' ]
 
 
-
+class OrderCheckSerializer(serializers.ModelSerializer):
+    cart = CartListSerializer()
+    date = serializers.DateTimeField(format('%d - %m - %Y %H:%M'))
+    order_info = UserForOrderSerializer()
+    class Meta:
+        model = Order
+        fields = ['id','cart','date','order_status',
+                  'delivery','order_info']
 
 class TextileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -250,11 +269,12 @@ class ClothesDetailSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     textile_clothes = TextileSerializer(read_only=True, many=True)
     discount_price = serializers.SerializerMethodField()
+
     class Meta:
         model = Clothes
         fields = ['id','clothes_name', 'category',
                   'promo_category', 'quantities', 'active', 'price','discount_price', 'size', 'average_rating',
-                  'made_in', 'textile_clothes', 'clothes_img', 'clothes_review','clothes_description']
+                  'made_in', 'textile_clothes', 'clothes_img', 'clothes_review','clothes_description',]
 
 
     def get_average_rating(self, obj):
@@ -288,23 +308,6 @@ class FavoriteItemALLCheckSerializer(serializers.ModelSerializer):
         fields= ['id','clothes','time']
 
 
-# class FavoriteSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Favorite
-#         fields = ['favorite_user', 'created_date']
-#
-#
-# class FavoriteItemSerializer(serializers.ModelSerializer):
-#     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
-#     class Meta:
-#         model = FavoriteItem
-#         fields = ['clothes','clothes_id']
-#
-# class FavoriteItemCheckSerializer(serializers.ModelSerializer):
-#     clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), write_only=True, source='clothes')
-#     class Meta:
-#         model = FavoriteItem
-#         fields = ['clothes','clothes_id','time']
 
 
 
@@ -316,4 +319,15 @@ class ProfileCheckSerializer(serializers.ModelSerializer):
         fields = ['id','username','first_name','last_name',
                   'number','address','index_pochta',]
 
+class About_meSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = About_me
+        fields = ['title','text','img']
+
+
+class MainAbout_meSerializer(serializers.ModelSerializer):
+    about_me = About_meSerializer(many=True)
+    class Meta:
+        model = MainAbout_Me
+        fields = ['title','made','logo','about_me']
 

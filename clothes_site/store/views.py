@@ -18,6 +18,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics
+
+from .permission import CheckOwnerOrder
 from django.contrib.auth import authenticate
 
 
@@ -123,38 +125,6 @@ class LogoutView(generics.GenericAPIView):
 
 
 
-from .models import Order
-class OrderCreate(viewsets.ModelViewSet):
-
-    def checkout(request):
-        if not request.user.is_authenticated:
-            name = request.POST.get('name')
-            email = request.POST.get('email')
-            address = request.POST.get('address')
-
-            if not name or not email or not address:
-                return JsonResponse({'error': 'Необходимо заполнить все поля'})
-
-            # Сохраняем информацию о пользователе в заказ
-            user = UserProfile.objects.create(username=email, email=email)
-            user.save()
-        else:
-            user = request.user
-
-        cart = Cart.objects.filter(user=user).first()
-        if not cart:
-            return JsonResponse({'error': 'Корзина пуста'})
-
-        # Создаём заказ
-        order = Order.objects.create(
-            order_user=user,
-            cart=cart,
-            address=request.POST.get('address'),
-            payment_method=request.POST.get('payment_method'),
-            total_price=cart.get_total_price()
-        )
-
-        return JsonResponse({'message': 'Заказ оформлен', 'order_id': order.id})
 
 
 class ClothesListAPIView(generics.ListAPIView):
@@ -199,6 +169,21 @@ class CartItemCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         cart, created = Cart.objects.get_or_create(user=self.request.user)
         serializer.save(cart=cart)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            product = serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as e:
+            return Response({'detail':f'{e} , маалымат тура эмес берилди '},status = status.HTTP_400_BAD_REQUEST)
+        except NameError as e:
+            return Response({'detail':f'{e} ,  ошибка в коде '},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except KeyError as e :
+            return Response({'detail':f' {e} - ошибка в атрибуте '})
+        except Exception :
+            return Response({'detail':'сервер не работает'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CartItemUpdateDeleteApiView(generics.RetrieveUpdateDestroyAPIView):
@@ -252,5 +237,36 @@ class PhotoListAPIView(generics.ListAPIView):
     queryset = Photo.objects.all()
     serializer_class = PhotoSerializer
     filter_backends =[DjangoFilterBackend]
+
+
+class MainAbout_meListAPIView(generics.ListAPIView):
+    queryset = MainAbout_Me.objects.all()
+    serializer_class = MainAbout_meSerializer
+
+
+
+class UserForOrderCreateAPIView(generics.ListCreateAPIView):
+    queryset = OrderInfoUser.objects.all()
+    serializer_class = UserForOrderSerializer
+
+
+
+class OrderCreateAPIView(generics.CreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class OrderCheckAPIView(generics.ListAPIView):
+    # queryset = Order.objects.all()
+    serializer_class = OrderCheckSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(order_user = self.request.user)
+
+
+class OrderDeleteAPIView(generics.RetrieveDestroyAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderCheckSerializer
+    permission_classes = [permissions.IsAuthenticated,CheckOwnerOrder]
 
 

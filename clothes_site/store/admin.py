@@ -37,5 +37,8 @@ admin.site.register(Cart)
 admin.site.register(CartItem)
 admin.site.register(Order)
 admin.site.register(FavoriteItem)
+admin.site.register(MainAbout_Me)
+admin.site.register(About_me)
+admin.site.register(OrderInfoUser)
 
 #color
