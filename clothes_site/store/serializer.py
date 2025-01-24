@@ -100,7 +100,7 @@ class LoginSerializer(serializers.Serializer):
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'address', 'number','city']
+        fields = ['first_name', 'address', 'number','email','last_name','password']
 
 
 class UserProfileSimpleSerializer(serializers.ModelSerializer):
@@ -300,6 +300,7 @@ class FavoriteItemCreateSerializer(serializers.ModelSerializer):
         model = FavoriteItem
         fields = ['id', 'clothes', 'clothes_id','favorite_user']
 
+
 class FavoriteItemALLCheckSerializer(serializers.ModelSerializer):
     clothes = ClothesListSerializer()
     time = serializers.DateTimeField(format('%d - %m %Y  %H:%M'))
@@ -317,7 +318,8 @@ class ProfileCheckSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['id','username','first_name','last_name',
-                  'number','address','index_pochta',]
+                  'number','address',]
+
 
 class About_meSerializer(serializers.ModelSerializer):
     class Meta:
