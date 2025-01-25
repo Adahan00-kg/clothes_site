@@ -319,7 +319,7 @@ class ProfileCheckSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['id','username','first_name','last_name',
-                  'number','address',]
+                  'number','address','email']
 
 
 class About_meSerializer(serializers.ModelSerializer):
