@@ -41,9 +41,15 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserProfileSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+        except serializers.ValidationError as e:
+            return Response ({'detail':f'Маалымат тура эмес келди {e}'})
+        except Exception as e:
+            return Response({'detail':f'ошибка сервера {e}'})
+
 
         # Создаём токены
         refresh = RefreshToken.for_user(user)
@@ -76,8 +82,11 @@ class LoginView(TokenObtainPairView):
         serializer = self.get_serializer(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
-        except Exception:
-            return Response({"detail": "Неверные учетные данные"}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({"detail": f'ошибка в сервере {e}'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        except serializers.ValidationError as e:
+            return Response({'detail':f'маалымат тура эмес {e}'},status.HTTP_401_UNAUTHORIZED)
 
         user = serializer.validated_data['user']
         refresh = RefreshToken.for_user(user)
@@ -119,8 +128,10 @@ class LogoutView(generics.GenericAPIView):
             response.delete_cookie('access_token')
             response.delete_cookie('refresh_token')
             return response
-        except Exception:
+        except Exception :
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
+            return Response({'detail':'не правильный ключ'},status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -170,20 +181,22 @@ class CartItemCreateAPIView(generics.CreateAPIView):
         cart, created = Cart.objects.get_or_create(user=self.request.user)
         serializer.save(cart=cart)
 
-    def create(self, request, *args, **kwargs):
-        try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            product = serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        except serializers.ValidationError as e:
-            return Response({'detail':f'{e} , маалымат тура эмес берилди '},status = status.HTTP_400_BAD_REQUEST)
-        except NameError as e:
-            return Response({'detail':f'{e} ,  ошибка в коде '},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except KeyError as e :
-            return Response({'detail':f' {e} - ошибка в атрибуте '})
-        except Exception :
-            return Response({'detail':'сервер не работает'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    # def create(self, request, *args, **kwargs):
+    #     # try:
+    #         serializer = self.get_serializer(data=request.data)
+    #         serializer.is_valid(raise_exception=True)
+    #         product = serializer.save()
+    #         return Response(serializer.data,status=status.HTTP_201_CREATED)
+    #     # except serializers.ValidationError as e:
+        #     return Response({'detail':f'{e} , маалымат тура эмес берилди '},status = status.HTTP_400_BAD_REQUEST)
+        # except NameError as e:
+        #     return Response({'detail':f'{e} ,  ошибка в коде '},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # except KeyError as e :
+        #     return Response({'detail':f' {e} - ошибка в атрибуте '})
+        # except Exception :
+        #     return Response({'detail':'сервер не работает'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CartItemUpdateDeleteApiView(generics.RetrieveUpdateDestroyAPIView):
@@ -194,12 +207,29 @@ class CartItemUpdateDeleteApiView(generics.RetrieveUpdateDestroyAPIView):
         return CartItem.objects.filter(cart__user=self.request.user)
 
 
+    # def update(self, request, *args, **kwargs):
+    #     try:
+    #         partial = kwargs.pop('partial', False)
+    #         instance = self.get_object()
+    #         serializer = self.get_serializer(instance, data=request.data, partial=partial)
+    #         serializer.is_valid(raise_exception=True)
+    #     except serializers.ValidationError as e:
+    #         return Response({'detail':f'тура эмес маалымат {e}'},status.HTTP_400_BAD_REQUEST)
+    #     except NameError as e:
+    #         return Response({'detail':f'ошибка в коде {e}'},status.HTTP_500_INTERNAL_SERVER_ERROR)
+    #     except Exception as e:
+    #         return Response({'detail': f'ошибка в коде {e}'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
 class CartItemListAPIView(generics.ListAPIView):
     serializer_class = CartItemCheckSerializer
     # queryset = CartItem.objects.all()
 
     def get_queryset(self):
         return CartItem.objects.filter(cart__user=self.request.user)
+
 
 class ClothesDetailViewSet(generics.RetrieveAPIView):
     queryset = Clothes.objects.all()
@@ -245,16 +275,14 @@ class MainAbout_meListAPIView(generics.ListAPIView):
 
 
 
-class UserForOrderCreateAPIView(generics.ListCreateAPIView):
-    queryset = OrderInfoUser.objects.all()
-    serializer_class = UserForOrderSerializer
+
 
 
 
 class OrderCreateAPIView(generics.CreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderCreateSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
 class OrderCheckAPIView(generics.ListAPIView):
     # queryset = Order.objects.all()
@@ -270,4 +298,24 @@ class OrderDeleteAPIView(generics.RetrieveDestroyAPIView):
     serializer_class = OrderCheckSerializer
     permission_classes = [permissions.IsAuthenticated,CheckOwnerOrder]
 
+
+class PayListAPIView(generics.ListAPIView):
+    queryset = Pay.objects.all()
+    serializer_class = PaySerializer
+
+
+
+class SaleListAPIView(generics.ListAPIView):
+    queryset = Sale.objects.all()
+    serializer_class = SaleSerializer
+
+
+class TitleListAPIView(generics.ListAPIView):
+    queryset = TitleVid.objects.all()
+    serializer_class = TitleSerializer
+
+
+class ContactInfoListAPIView(generics.ListAPIView):
+    queryset = ContactInfo.objects.all()
+    serializer_class = ContactInfoSerializer
 

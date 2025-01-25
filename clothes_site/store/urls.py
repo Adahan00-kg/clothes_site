@@ -25,7 +25,6 @@ urlpatterns = [
 
     path('cart/',CartListAPIView.as_view(),name = 'cart_check'),
 
-
     path('favorite_item/create/', FavoriteItemCreateViewSet.as_view(), name='favorite_item_create'),
 
     path('favorite_item/delete/<int:pk>/', FavoriteDeleteAPIView.as_view(), name='favorite_item_delete'),
@@ -39,7 +38,7 @@ urlpatterns = [
 
     path('order/create/', OrderCreateAPIView.as_view(), name='order-list-create'),
 
-    path('user/order/create/',UserForOrderCreateAPIView.as_view(),name = 'user_for_order'),
+    # path('user/order/create/',UserForOrderCreateAPIView.as_view(),name = 'user_for_order'),
 
     path('order/check/',OrderCheckAPIView.as_view(),name = 'order_check'),
 
@@ -52,5 +51,12 @@ urlpatterns = [
     # path('password_reset/verify_code/', verify_reset_code, name='verify_reset_code'),
     # path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
 
+    path('pay/',PayListAPIView.as_view(),name = 'pay'),
+
+    path('sale/',SaleListAPIView.as_view(),name = 'sale'),
+
+    path('title/',TitleListAPIView.as_view(),name = 'title_vid'),
+
+    path('contact_info/',ContactInfoListAPIView.as_view(),name = 'contact_info'),
 
 ]

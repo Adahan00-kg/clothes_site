@@ -1,4 +1,5 @@
 from pyasn1_modules.rfc4985 import srvName
+from rest_framework.response import Response
 
 from .models import *
 
@@ -9,45 +10,10 @@ from rest_framework import serializers
 # from django_rest_passwordreset.models import ResetPasswordTokend
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    confirm_password = serializers.CharField(write_only=True)
-    class Meta:
-        model = UserProfile
-        fields = ['username', 'email','password', 'confirm_password']
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def validate(self, attrs):
-        # Проверка на совпадение паролей
-        if attrs['password'] != attrs['confirm_password']:
-            raise serializers.ValidationError({"password": "Пароли не совпадают."})
-
-        # Валидация пароля через встроенные проверки Django
-        validate_password(attrs['password'])
-
-        return attrs
-
-    def create(self, validated_data):
-        # Удаляем confirm_password из данных перед созданием пользователя
-        validated_data.pop('confirm_password')
-        user = UserProfile.objects.create_user(**validated_data)
-        return user
-
-    def to_representation(self, instance):
-        refresh = RefreshToken.for_user(instance)
-        return {
-            'user': {
-                'username': instance.username,
-                'email': instance.email,
-            },
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-        }
-
-
 
 
 # class VerifyResetCodeSerializer(serializers.Serializer):
-#     email = serializers.EmailField()  # Email пользователя
+#     email = serializers.Email Field()  # Email пользователя
 #     reset_code = serializers.IntegerField()  # 4-значный код
 #     new_password = serializers.CharField(write_only=True)  # Новый пароль
 #
@@ -74,6 +40,44 @@ class UserProfileSerializer(serializers.ModelSerializer):
 #
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
+    class Meta:
+        model = UserProfile
+        fields = ['username', 'email','password', 'confirm_password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def validate(self, attrs):
+        # Проверка на совпадение паролей
+        if attrs['password'] != attrs['confirm_password']:
+            raise serializers.ValidationError({"password": "Пароли не совпадают."})
+
+        # Валидация пароля через встроенные проверки Django
+        validate_password(attrs['password'])
+
+        return attrs
+
+    def create(self, validated_data):
+        try:
+            # Удаляем confirm_password из данных перед созданием пользователя
+            validated_data.pop('confirm_password')
+            user = UserProfile.objects.create_user(**validated_data)
+            return user
+        except Exception as e :
+            return serializers.ValidationError ('инфо тура эмес')
+
+
+    def to_representation(self, instance):
+        try:
+            refresh = RefreshToken.for_user(instance)
+            return {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }
+        except Exception as e :
+            return serializers.ValidationError ('ошибка при создайнии токена')
+
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
@@ -88,10 +92,6 @@ class LoginSerializer(serializers.Serializer):
         user = instance['user']
         refresh = RefreshToken.for_user(user)
         return {
-            'user': {
-                'username': user.username,
-                'email': user.email,
-            },
             'access': str(refresh.access_token),
             'refresh': str(refresh),
         }
@@ -232,28 +232,29 @@ class CartListSerializer(serializers.ModelSerializer):
         return obj.get_total_price()
 
 
-class UserForOrderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderInfoUser
-        fields = ['first_name','phone_number','city','address']
+# class UserForOrderSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = OrderInfoUser
+#         fields = ['first_name','phone_number','city','address']
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
+    cart_id = serializers.PrimaryKeyRelatedField(queryset=Cart.objects.all(), write_only=True, source='cart')
 
     class Meta:
         model = Order
-        fields = ['order_user', 'cart',
-                  'delivery', 'order_info' ]
+        fields = ['order_user', 'cart_id',
+                  'delivery', 'first_name','phone_number','city','address' ]
 
 
 class OrderCheckSerializer(serializers.ModelSerializer):
     cart = CartListSerializer()
     date = serializers.DateTimeField(format('%d - %m - %Y %H:%M'))
-    order_info = UserForOrderSerializer()
+
     class Meta:
         model = Order
         fields = ['id','cart','date','order_status',
-                  'delivery','order_info']
+                  'delivery','first_name','phone_number','city','address' ]
 
 class TextileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -332,4 +333,27 @@ class MainAbout_meSerializer(serializers.ModelSerializer):
     class Meta:
         model = MainAbout_Me
         fields = ['title','made','logo','about_me']
+
+
+class PaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pay
+        fields = ['pay_img','whatsapp']
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sale
+        fields = ['img','title','text']
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TitleVid
+        fields = ['img1','img2','img3','made','title']
+
+class ContactInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactInfo
+        fields = ['messenger','email','address']
 

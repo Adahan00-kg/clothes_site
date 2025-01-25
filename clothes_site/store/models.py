@@ -107,7 +107,7 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items',null=True,blank=True)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items')
     clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE)
     size = models.CharField(max_length=25, choices=Clothes.SIZE_CHOICES)  # Размер
     color = models.ForeignKey(Photo, on_delete=models.CASCADE)  # Цвет
@@ -133,15 +133,23 @@ class CartItem(models.Model):
         else:
             return None
 
-class OrderInfoUser(models.Model):
-    first_name = models.CharField(max_length=130)
-    phone_number = PhoneNumberField(region='KG')
-    city = models.CharField(max_length=50)
-    address = models.CharField(max_length=55)
 
 
-    def __str__(self):
-        return f'{self.first_name} - {self.phone_number}'
+
+# class OrderInfoUser(models.Model):
+#     first_name = models.CharField(max_length=130)
+#     phone_number = PhoneNumberField(region='KG')
+#     city = models.CharField(max_length=50)
+#     address = models.CharField(max_length=55)
+#
+#
+#     def __str__(self):
+#         return f'{self.first_name} - {self.phone_number}'
+
+class Pay(models.Model):
+    pay_img = models.ImageField(upload_to='pay_img/')
+    whatsapp = models.URLField(null=True, blank=True)
+
 
 
 class Order(models.Model):
@@ -162,11 +170,16 @@ class Order(models.Model):
         ('самовызов', 'самовызов'),
     )
     delivery = models.CharField(max_length=20, default='самовызов', choices=STATUS_DELIVERY)
-    order_info = models.ForeignKey(OrderInfoUser,on_delete=models.CASCADE)
+    # order_info = models.ForeignKey(OrderInfoUser,on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=130)
+    phone_number = PhoneNumberField(region='KG')
+    city = models.CharField(max_length=50)
+    address = models.CharField(max_length=55)
+
 
 
     def __str__(self):
-        return f'{self.order_user}'
+        return f'{self.order_user} - {self.first_name} - {self.cart}'
 
 
 
@@ -203,3 +216,35 @@ class About_me(models.Model):
 
     def __str__(self):
         return f'{self.title}'
+
+
+
+class Sale(models.Model):
+    img = models.ImageField(upload_to='sale_img/')
+    title = models.CharField(max_length=100,null=True,blank=True)
+    text = models.TextField(null=True,blank=True)
+
+    def __str__(self):
+        return f'{self.title}'
+
+
+class TitleVid(models.Model):
+    made = models.CharField(max_length=100)
+    title = models.CharField(max_length=250)
+    img1 = models.ImageField(upload_to='title_img/')
+    img2 = models.ImageField(upload_to='title_img/')
+    img3 = models.ImageField(upload_to='title_img/')
+
+    def __str__(self):
+        return f'{self.title}'
+
+
+class ContactInfo(models.Model):
+    messenger = models.CharField(max_length=100,null=True,blank=True)
+    email = models.CharField(max_length=100,null=True,blank=True)
+    address = models.CharField(max_length=100,null=True,blank=True)
+
+    def __str__(self):
+        return f'{self.messenger}'
+
+

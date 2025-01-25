@@ -39,6 +39,9 @@ admin.site.register(Order)
 admin.site.register(FavoriteItem)
 admin.site.register(MainAbout_Me)
 admin.site.register(About_me)
-admin.site.register(OrderInfoUser)
-
+# admin.site.register(OrderInfoUser)
+admin.site.register(Pay)
+admin.site.register(Sale)
+admin.site.register(TitleVid)
+admin.site.register(ContactInfo)
 #color
