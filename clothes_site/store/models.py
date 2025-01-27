@@ -2,12 +2,11 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from multiselectfield import MultiSelectField
 from phonenumber_field.modelfields import PhoneNumberField
-from django.core.validators import MaxValueValidator
 
 class UserProfile(AbstractUser):
     number = PhoneNumberField(region='KG')
     address = models.CharField(max_length=150)
-    city = models.CharField(max_length=50)
+
 
     def __str__(self):
         return f'{self.username} - {self.email}'
@@ -147,10 +146,20 @@ class CartItem(models.Model):
 #         return f'{self.first_name} - {self.phone_number}'
 
 class Pay(models.Model):
-    pay_img = models.ImageField(upload_to='pay_img/')
     whatsapp = models.URLField(null=True, blank=True)
 
+    def __str__(self):
+        return f'{self.whatsapp}'
 
+
+class PayTitle(models.Model):
+    pay_img = models.ImageField(upload_to='pay_img/')
+    number = models.CharField(max_length=100,null=True,blank=True)
+    info = models.CharField(max_length=100,null=True,blank=True)
+    connect = models.ForeignKey(Pay,on_delete=models.CASCADE,related_name='pay_title')
+
+    def __str__(self):
+        return f'{self.number}'
 
 class Order(models.Model):
     order_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE,related_name='order_user')
@@ -218,7 +227,6 @@ class About_me(models.Model):
         return f'{self.title}'
 
 
-
 class Sale(models.Model):
     img = models.ImageField(upload_to='sale_img/')
     title = models.CharField(max_length=100,null=True,blank=True)
@@ -246,5 +254,11 @@ class ContactInfo(models.Model):
 
     def __str__(self):
         return f'{self.messenger}'
+
+
+class EndTitle(models.Model):
+    title = models.CharField(max_length=159)
+    text = models.TextField()
+
 
 

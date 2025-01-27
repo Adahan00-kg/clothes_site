@@ -59,4 +59,6 @@ urlpatterns = [
 
     path('contact_info/',ContactInfoListAPIView.as_view(),name = 'contact_info'),
 
-]
+    path('end_title/',EndTitleListAPIView.as_view(),name = 'end_title'),
+
+  ]

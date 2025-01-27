@@ -200,3 +200,11 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'adahanofficial@gmail.com'  # Ваш email
 EMAIL_HOST_PASSWORD = 'njsd wusx uebz pvug'  # Ваш пароль
+
+
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'JSON_EDITOR': True,
+    'DEFAULT_MODEL_RENDERING': 'example',
+}

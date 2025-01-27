@@ -44,4 +44,7 @@ admin.site.register(Pay)
 admin.site.register(Sale)
 admin.site.register(TitleVid)
 admin.site.register(ContactInfo)
+admin.site.register(EndTitle)
+admin.site.register(PayTitle)
+
 #color

@@ -68,14 +68,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
     def to_representation(self, instance):
-        try:
-            refresh = RefreshToken.for_user(instance)
-            return {
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-            }
-        except Exception as e :
-            return serializers.ValidationError ('ошибка при создайнии токена')
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }
 
 
 class LoginSerializer(serializers.Serializer):
@@ -85,22 +82,15 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         user = authenticate(**data)
         if user and user.is_active:
-            return {'user': user}  # Возвращаем объект пользователя
+            return user
         raise serializers.ValidationError("Неверные учетные данные")
 
     def to_representation(self, instance):
-        user = instance['user']
-        refresh = RefreshToken.for_user(user)
+        refresh = RefreshToken.for_user(instance)
         return {
             'access': str(refresh.access_token),
             'refresh': str(refresh),
         }
-
-
-class UserProfileUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = ['first_name', 'address', 'number','email','last_name','password']
 
 
 class UserProfileSimpleSerializer(serializers.ModelSerializer):
@@ -169,6 +159,7 @@ class PromoCategorySerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Review
         fields = ['author', 'text', 'stars', 'review_photo', 'clothes_review']
@@ -310,15 +301,10 @@ class FavoriteItemALLCheckSerializer(serializers.ModelSerializer):
         fields= ['id','clothes','time']
 
 
-
-
-
-
-
-class ProfileCheckSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['id','username','first_name','last_name',
+        fields = ['username','first_name','last_name',
                   'number','address','email']
 
 
@@ -335,10 +321,17 @@ class MainAbout_meSerializer(serializers.ModelSerializer):
         fields = ['title','made','logo','about_me']
 
 
+class PayTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PayTitle
+        fields = ['pay_img','number','info']
+
+
 class PaySerializer(serializers.ModelSerializer):
+    pay_title = PayTitleSerializer(many=True)
     class Meta:
         model = Pay
-        fields = ['pay_img','whatsapp']
+        fields = ['whatsapp','pay_title']
 
 
 class SaleSerializer(serializers.ModelSerializer):
@@ -356,4 +349,10 @@ class ContactInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactInfo
         fields = ['messenger','email','address']
+
+
+class EndTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EndTitle
+        fields = ['title','text']
 

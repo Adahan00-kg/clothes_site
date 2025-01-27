@@ -80,15 +80,10 @@ class LoginView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-        except Exception as e:
-            return Response({"detail": f'ошибка в сервере {e}'}, status=status.HTTP_401_UNAUTHORIZED)
+        serializer.is_valid(raise_exception=True)
 
-        except serializers.ValidationError as e:
-            return Response({'detail':f'маалымат тура эмес {e}'},status.HTTP_401_UNAUTHORIZED)
 
-        user = serializer.validated_data['user']
+        user = serializer.validated_data
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
 
@@ -157,14 +152,108 @@ class PromoCategoryListAPIView(generics.ListAPIView):
 class ReviewCreateAPIView(generics.CreateAPIView):
     serializer_class = ReviewSerializer
 
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.parsers import MultiPartParser, FormParser
+
+# class ReviewAddView(APIView):
+#     parser_classes = [MultiPartParser, FormParser]
+#
+#     @swagger_auto_schema(
+#         operation_description="Добавить отзыв",
+#         request_body=openapi.Schema(
+#             type=openapi.TYPE_OBJECT,
+#             properties={
+#                 'author': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID автора'),
+#                 'text': openapi.Schema(type=openapi.TYPE_STRING, description='Текст отзыва'),
+#                 'stars': openapi.Schema(type=openapi.TYPE_INTEGER, description='Рейтинг (1-5)'),
+#                 'review_photo': openapi.Schema(type=openapi.TYPE_FILE, description='Фотография'),
+#                 'clothes_review': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID одежды'),
+#             },
+#             required=['author', 'text', 'stars', 'clothes_review'],
+#         ),
+#         responses={
+#             201: "Отзыв успешно добавлен",
+#             400: "Ошибка валидации",
+#         },
+#     )
+#     def post(self, request, *args, **kwargs):
+#         serializer = ReviewSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# from drf_yasg import openapi
+# from drf_yasg.utils import swagger_auto_schema
+# from rest_framework.parsers import MultiPartParser, FormParser
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework import status
+#
+# class ReviewAddView(APIView):
+#     parser_classes = [MultiPartParser, FormParser]
+#
+#     @swagger_auto_schema(
+#         operation_description="Добавить отзыв",
+#         manual_parameters=[
+#             openapi.Parameter(
+#                 'author',
+#                 openapi.IN_FORM,
+#                 description='ID автора',
+#                 type=openapi.TYPE_INTEGER,
+#                 required=True,
+#             ),
+#             openapi.Parameter(
+#                 'text',
+#                 openapi.IN_FORM,
+#                 description='Текст отзыва',
+#                 type=openapi.TYPE_STRING,
+#                 required=True,
+#             ),
+#             openapi.Parameter(
+#                 'stars',
+#                 openapi.IN_FORM,
+#                 description='Рейтинг (0-5)',
+#                 type=openapi.TYPE_INTEGER,
+#                 required=True,
+#             ),
+#             openapi.Parameter(
+#                 'review_photo',
+#                 openapi.IN_FORM,
+#                 description='Фотография',
+#                 type=openapi.TYPE_FILE,
+#                 required=False,
+#             ),
+#             openapi.Parameter(
+#                 'clothes_review',
+#                 openapi.IN_FORM,
+#                 description='ID одежды',
+#                 type=openapi.TYPE_INTEGER,
+#                 required=True,
+#             ),
+#         ],
+#         responses={
+#             201: "Отзыв успешно добавлен",
+#             400: "Ошибка валидации",
+#         },
+#     )
+#     def post(self, request, *args, **kwargs):
+#         serializer = ReviewSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CartListAPIView(generics.ListAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartListSerializer
 
-    # def get_queryset(self):
-    #     return Cart.objects.filter(user=self.request.user)
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
         cart, created = Cart.objects.get_or_create(user=request.user)
@@ -251,7 +340,7 @@ class FavoriteListAPIView(generics.ListAPIView):
 
 
 class ProfileViewSet(generics.ListAPIView):
-    serializer_class = ProfileCheckSerializer
+    serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -259,7 +348,7 @@ class ProfileViewSet(generics.ListAPIView):
 
 
 class UserProfileUpdateViewSet(viewsets.ModelViewSet):
-    serializer_class = UserProfileUpdateSerializer
+    serializer_class = ProfileSerializer
     queryset = UserProfile.objects.all()
 
 
@@ -318,4 +407,10 @@ class TitleListAPIView(generics.ListAPIView):
 class ContactInfoListAPIView(generics.ListAPIView):
     queryset = ContactInfo.objects.all()
     serializer_class = ContactInfoSerializer
+
+
+
+class EndTitleListAPIView(generics.ListAPIView):
+    queryset = EndTitle.objects.all()
+    serializer_class = EndTitleSerializer
 
