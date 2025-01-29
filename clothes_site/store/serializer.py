@@ -1,6 +1,3 @@
-from pyasn1_modules.rfc4985 import srvName
-from rest_framework.response import Response
-
 from .models import *
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -13,7 +10,7 @@ from rest_framework import serializers
 
 
 # class VerifyResetCodeSerializer(serializers.Serializer):
-#     email = serializers.Email Field()  # Email пользователя
+#     email = serializers.EmailField()  # Email пользователя
 #     reset_code = serializers.IntegerField()  # 4-значный код
 #     new_password = serializers.CharField(write_only=True)  # Новый пароль
 #
@@ -37,7 +34,7 @@ from rest_framework import serializers
 #         # Устанавливаем новый пароль
 #         user.set_password(new_password)
 #         user.save()
-#
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

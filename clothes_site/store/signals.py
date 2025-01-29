@@ -23,4 +23,5 @@
 #         "noreply@somehost.local",  # От кого
 #         [reset_password_token.user.email],  # Список получателей
 #         fail_silently=False,
-    # )
+#     )
+#

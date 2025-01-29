@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'django_filters',
-    # 'django_rest_passwordreset',
+    'django_rest_passwordreset',
 
 
 ]
