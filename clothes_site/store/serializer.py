@@ -4,36 +4,34 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-# from django_rest_passwordreset.models import ResetPasswordTokend
+from django_rest_passwordreset.models import  ResetPasswordToken
 
 
+class VerifyResetCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField()  # Email пользователя
+    reset_code = serializers.IntegerField()  # 4-значный код
+    new_password = serializers.CharField(write_only=True)  # Новый пароль
 
+    def validate(self, data):
+        email = data.get('email')
+        reset_code = data.get('reset_code')
 
-# class VerifyResetCodeSerializer(serializers.Serializer):
-#     email = serializers.EmailField()  # Email пользователя
-#     reset_code = serializers.IntegerField()  # 4-значный код
-#     new_password = serializers.CharField(write_only=True)  # Новый пароль
-#
-#     def validate(self, data):
-#         email = data.get('email')
-#         reset_code = data.get('reset_code')
-#
-#         # Проверяем, существует ли указанный код для email
-#         try:
-#             token = ResetPasswordToken.objects.get(user__email=email, key=reset_code)
-#         except ResetPasswordToken.DoesNotExist:
-#             raise serializers.ValidationError("Неверный код сброса или email.")
-#
-#         data['user'] = token.user
-#         return data
-#
-#     def save(self):
-#         user = self.validated_data['user']
-#         new_password = self.validated_data['new_password']
-#
-#         # Устанавливаем новый пароль
-#         user.set_password(new_password)
-#         user.save()
+        # Проверяем, существует ли указанный код для email
+        try:
+            token = ResetPasswordToken.objects.get(user__email=email, key=reset_code)
+        except ResetPasswordToken.DoesNotExist:
+            raise serializers.ValidationError("Неверный код сброса или email.")
+
+        data['user'] = token.user
+        return data
+
+    def save(self):
+        user = self.validated_data['user']
+        new_password = self.validated_data['new_password']
+
+        # Устанавливаем новый пароль
+        user.set_password(new_password)
+        user.save()
 
 
 
@@ -169,6 +167,7 @@ class ReviewReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['author', 'text', 'stars', 'review_photo', 'created_date']
+
 
 class ClothesForCartSerializer(serializers.ModelSerializer):
     clothes_img = PhotoSerializer(read_only=True, many=True)
@@ -338,9 +337,12 @@ class SaleSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    clothes1 = ClothesListSerializer()
+    clothes2 = ClothesListSerializer()
+    clothes3 = ClothesListSerializer()
     class Meta:
         model = TitleVid
-        fields = ['img1','img2','img3','made','title']
+        fields = ['made','title','clothes1','clothes2','clothes3']
 
 class ContactInfoSerializer(serializers.ModelSerializer):
     class Meta:

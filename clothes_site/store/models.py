@@ -239,9 +239,9 @@ class Sale(models.Model):
 class TitleVid(models.Model):
     made = models.CharField(max_length=100)
     title = models.CharField(max_length=250)
-    img1 = models.ImageField(upload_to='title_img/')
-    img2 = models.ImageField(upload_to='title_img/')
-    img3 = models.ImageField(upload_to='title_img/')
+    clothes1 = models.ForeignKey(Clothes,on_delete=models.CASCADE,null=True,blank=True,related_name='first')
+    clothes2 = models.ForeignKey(Clothes,on_delete=models.CASCADE,null=True,blank=True,related_name='second')
+    clothes3 = models.ForeignKey(Clothes,on_delete=models.CASCADE,null=True,blank=True,related_name='three')
 
     def __str__(self):
         return f'{self.title}'
@@ -259,6 +259,7 @@ class ContactInfo(models.Model):
 class EndTitle(models.Model):
     title = models.CharField(max_length=159)
     text = models.TextField()
+
 
 
 

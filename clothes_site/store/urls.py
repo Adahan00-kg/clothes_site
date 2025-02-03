@@ -48,8 +48,8 @@ urlpatterns = [
 
     path('about_me/',MainAbout_meListAPIView.as_view(),name = 'about_me_list'),
 
-    # path('password_reset/verify_code/', verify_reset_code, name='verify_reset_code'),
-    # path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('password_reset/verify_code/', verify_reset_code, name='verify_reset_code'),
+    path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
 
     path('pay/',PayListAPIView.as_view(),name = 'pay'),
 
